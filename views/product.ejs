@@ -1,0 +1,16 @@
+<% products.forEach( product => { %>
+    <li> <%= product.name + " " + product.price + " " + product.description%></li>
+    <a href="/wishlist/<%=product._id %>"> Add to Wishlist</a>
+    <% }) %>
+     
+    <% if( page !== 1 ) { %>
+    <a href=<%= "/products/?page="+ (page-1) %>> Previous </a>
+    <% } %>
+     
+    <% for( i = 0; i < productLength; i++ ) { %>
+    <a href=<%= "/products/?page="+ (i+1) %>> <%= i+1 %></a>
+    <% } %>
+     
+    <% if( page !== productLength ) { %>
+    <a href=<%= "/products/?page="+ (page+1) %>> Next </a>
+    <% } %>

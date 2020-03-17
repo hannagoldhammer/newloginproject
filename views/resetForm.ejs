@@ -1,0 +1,6 @@
+<form action="/reset/<%= resetUser.resetToken %>" method="post">
+    <input type="hidden" name="userId" value="<%= resetUser._id %>">
+    <input type="password" name="password" minlength="5" placeholder="New password">
+    <input type="password" name="repeatPassword" minlength="5" placeholder="Repeat password">
+    <button type="submit">Save new password</button>
+</form>

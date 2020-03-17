@@ -1,0 +1,66 @@
+npm i --save bcrypt
+
+const salt = bcrypt.genSalt(10)
+
+- 10 är för så många andra krypteringstecken som den kommer att ersätta varje bokstav med i lösenordet.
+- Ju högre siffra desto långsammare kommer det att gå.
+
+bcrypt och bcryptjs är inte samma
+
+
+Hashade lösenord 
+Pasword = 123123 -> hashat ->apohgåoöo5zihrgpise -> sparas i databas
+
+Det är Salt som gör att lösenordet blir olika vaje gång
+
+De som har samma lösenord kommer att få samma hash. men de är kopplade till olika konton med olika email 
+
+bcrypt har en metod som heter compare. Den kommer att jämföra användarens lösenord och det hashade lösenordet för att se till så att de är samma. 
+- den läser från req.body.password och sedan i databasen. 
+
+
+isobar
+
+Första gången som man loggar in (req1) på en sida så ser applicationen mig som en nya användare. Men genom att använda sesstion token så kan applicationen 
+komma ihåg vem jag är och att jag har varit på hemsidan innan, (req2).
+
+Token / session id: 
+Man måste använda sig av dessa för att applicationen ska komma ihåg användaren. 
+
+Load balancer:
+Balancerar ut req till applicationen så att den inte blir överbelastad. 
+
+JSON webtoken:
+npm i --save jsonwebtoken
+Har krypterad information om användare. 
+Den gör så att applicationen kommer ihåg mig när jag navigerar mig runt på sidan. Annars skulle jag loggats ut mellan varje sidan 
+som jag klickar mig runt på.
+Den gör en typ av signering. // Prata med pappa. 
+
+Cookie:
+Är för just min webbläsare. Det är ett utbyte av information från sid-ägare till klient. När klienten kommer tillbaka till sidan så visar klienten 
+upp kakorna.
+- Allt handlar om att sid-ägaren vill förbättra sid-upplevelsen för klienen eller statistik eller annat. 
+- Vanligt är att ha kakor tillsammans med Google analytics för att se hur klienten använder sidan. 
+
+Token:
+Som en biljett för att kolla om man är behörig. Som en bekräftelse på att jag har loggat in och att jag får lov att vara inloggaod samtidigt som jag 
+navigerar mig runt på deras sida.
+- Token sparas med hjälp av en cookie. Därför vet olika hemsidor som jag är inloggad på, att jag är just jag. 
+- Token sparas i klienten.
+
+Kryptering: 
+Tar en text sträng och gör om det till en annan bokstavskombination, sörja. Har man nykeln eller dekrypteringen så kan man för lösenordet tillbaka.
+
+Hash:
+Går inte att vända tillbaka. Envägskryptering. 
+
+Algoritmer:
+Bestämmer hur de matematiska Krypterings och hash uträkningarna ska se ut.
+
+
+docker
+
+kurbernetes 
+
+Virtual box - man kan simulera andra operativsystem utan att behlva ladda ner dem 
