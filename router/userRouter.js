@@ -1,21 +1,21 @@
 const express = require("express");
 const User = require("../model/user");
 const bcrypt = require("bcryptjs");
-const jsonWebToken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 const verifyToken = require("./verifyToken");
 const config = require("../config/config");
 const nodeMailer = require("nodemailer");
 const sendGridTransport = require("nodemailer-sendgrid-transport");
 const crypto = require("crypto");
-const resetPasswordSchema = require("../model/resetPassword")
+const Product = require("../model/product");
 
 
 const transport = nodeMailer.createTransport(sendGridTransport({
     auth: {
         api_key: config.mail
     }
-}))
+}));
 
 router.route("/")
     .get(async (req, res) => {
@@ -23,8 +23,9 @@ router.route("/")
     })
 
 router.route("/signUp")
-    .get(async (req, res) => {
-        res.render("signup");
+    .get(async(req, res) => {
+        const findUser = await User.find();
+        res.render("signup", {findUser});
     })
 
     .post(async (req, res) => {
@@ -50,46 +51,49 @@ router.route("/signUp")
     })
 
 router.route("/login")
-    .get(async (req, res) => {
+    .get((req, res) => {
         // Avnändares info
         res.render("login");
 
     })
     // Jämföra med databas
     .post(async (req, res) => {
-        // Kolla förs om anvöndaren finns. 
-        const checkUser = await User.findOne({ email: req.body.loginEmail })
+        // Kolla förs om användaren finns. 
+        const checkUser = await User.findOne({ email: req.body.loginEmail });
 
         // Kolla om användarnamnet finns, annars skicka användaren till sing up sidan
-        if (!checkUser) res.redirect("/login")
+        if (!checkUser) return res.redirect("/login");
 
-        const validUser = await bcrypt.compare(req.body.loginPassword, checkUser.password)
+        // Kollar om den postade informationen stämmer överens med databasen
+        const isValidUser = await bcrypt.compare(req.body.loginPassword, checkUser.password);
 
-        if (!validUser) return res.redirect("/login");
+        if (!isValidUser) return res.redirect("/login");
 
         // Payload = användares information
-        jsonWebToken.sign({ checkUser }, "secretKey", (err, token) => {
-            if (err) {
-                res.redirect("/login")
-            }
-            if (token) {
-                // Cookies finns i req objektet
-                // jwt kan vara vad som helst 
-                const cookie = req.cookies.jsonWebToken
-                // Kollar om användaren har en cookie sedan innan, om inte, skapa en till användaren. 
-                if (!cookie) {
-                    // res.cookie skapear en cookie till klienten
-                    // maxAge för hur länge som den ska gälla
-                    res.cookie("jsonWebToken", token, { maxAge: 6000000000, httpOnly: true })  // jwt här måste vara samma som req.cookies.jwt
-
+        else{
+            jwt.sign({ checkUser }, "secretKey", (err, token) => {
+                if (err) {
+                    res.redirect("/login");
                 }
-                // Local storage 
-                // Node js kör i servern och localstorage är browser api
-                // localStorage.setItem("JsonWebToken", JSON.stringify(token))
-                res.render("userProfile", { checkUser, token });
-            }
-            res.redirect("/login");
-        })
+                if (token) {
+                    // Cookies finns i req objektet
+                    // jwt kan vara vad som helst 
+                    const cookie = req.cookies.jsonwebtoken
+                    // Kollar om användaren har en cookie sedan innan, om inte, skapa en till användaren. 
+                    if (!cookie) {
+                        // res.cookie skapear en cookie till klienten
+                        // maxAge för hur länge som den ska gälla
+                        res.cookie("jsonwebtoken", token, { maxAge: 6000000000, httpOnly: true })  // jwt här måste vara samma som req.cookies.jwt
+    
+                    }
+                    // Local storage 
+                    // Node js kör i servern och localstorage är browser api
+                    // localStorage.setItem("JsonWebToken", JSON.stringify(token))
+                    res.render("userProfile", { checkUser });
+                }
+                res.redirect("/login");
+            })
+        }
     })
 
 router.route("/reset")
@@ -140,37 +144,41 @@ router.route("/reset/:token")
         res.redirect("/login");
     })
 
-router.get("/products", verifyToken, (req, res) => {
-    res.send("You have authorisation");
-});
 
 router.route("/logout")
     .get((req, res) => {
         // För att ta bort cookies. 
-        res.clearCookie("jsonWebToken").redirect("/login")
+        res.clearCookie("jsonwebtoken").redirect("/login")
     })
 
-router.get("/wishlist/:id", verifyToken, async (req, res) => {
-
-    //req.params.id
-
-    const product = await Product.findOne({ _id: req.params.id })
-
-    // req.user ska ha user inf
-    //req.body.user._id
-    //verifyToken
-
-    //hård kodat user id från user collection. // Jag har ändrat
-        const user = await User.findOne({ _id: req.body.user._id })
-    //user hämtar bara ett objekt. 
-    //User.find() hämtar array of object 
-
-    await user.addToWishList(product)
-
-    // await user.save()
-
-    res.send("wishlisted");
+router.get("/wishlist", verifyToken, async (req, res) => {
+    console.log("Här kommer req.body");
+    console.log(req.body);
+    const user = await User.findOne({ _id: req.body.checkUser._id }).populate("wishlist.productId");
+    console.log("Här kommer user objektet: ")
+    console.log(user);
+    res.render("wishlist", { user });
 
 })
+    
+router.get("/wishlist/:id", verifyToken, async (req, res) => {
+    const product =  await Product.findOne({ _id: req.params.id });
+    console.log("Här kommer product objektet: ");
+    console.log(product);
+    console.log("Här kommer req.body");
+    console.log(req.body);
+    const user = await User.findOne({ _id: req.body.checkUser._id });
+    console.log("Här kommer user objektet: ");
+    console.log(user);
+    await user.addToWishList(product);
+    res.redirect("/wishlist");
+})
+
+router.get("/deletewishlist/:id", verifyToken, async(req, res) => {
+    const user = await User.findOne({ _id: req.body.checkUser._id });
+    user.removeFromList(req.params.id);
+    res.redirect("/wishlist");
+})
+
 
 module.exports = router;

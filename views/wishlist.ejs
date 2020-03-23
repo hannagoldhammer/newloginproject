@@ -1,0 +1,9 @@
+<ul>
+    <!-- Loopa igenom alla för att see alla produkter som lagts till i wishlist -->
+    <!-- Loopa igenom informationen om de produkterna som ligger i wishlist -->
+
+    <% user.wishlist.forEach((product) => { %>
+        <li> <%= product.productId.name %> <%= product.productId.price %> <a href="/deletewishlist/<%=product.productId._id%>">Remove</a></li>
+
+    <% }); %>
+</ul>

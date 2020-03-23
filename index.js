@@ -4,6 +4,8 @@ const config = require("./config/config")
 const user = require("./router/userRouter")
 const cookieParser = require("cookie-parser");
 const productRouter = require("./router/productRouter");
+// Denna gör så att man kan läsa data från en .env fil
+require("dotenv").config();
 
 const app = express()
 
@@ -15,10 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 // Att nodeska använda views och ejs för att rendera html filerna 
 app.set("view engine", "ejs");
 
-// Behövde inte använda
-// app.get("/", (req, res) => {
-//     res.send("It is working!")
-// });
+app.get("/", (req, res) => {
+    res.send("Welcome user")
+})
 
 app.use(user);
 app.use(productRouter);
@@ -29,8 +30,11 @@ const option = {
     useCreateIndex: true
 }
 
+// PORT= ska vara sttora bokstäver för att protokollet säger så
 const port = process.env.PORT || 8001;
 mongoose.connect(config.databaseURL, option).then(() => {
     app.listen(port)
     console.log(`Connected to port: ${port}`);
-})
+});
+
+module.exports = app;

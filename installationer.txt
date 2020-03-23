@@ -64,3 +64,90 @@ docker
 kurbernetes 
 
 Virtual box - man kan simulera andra operativsystem utan att behlva ladda ner dem 
+
+
+Jest - för att göra testing
+npm i --save-dev jest 
+Är som en kombination av mocha och chai
+
+
+Supertest 
+npm i --save-dev supertest 
+
+
+
+
+
+
+
+
+
+
+
+Anteckningar:
+skapa en router i product router 
+och lägg till en product 
+
+kommer frpn product.js schema 
+
+I productRouter
+för att hämta info om amdin användare - mongoose populate - metod som finns i mongoose.
+kan hämta info om admin user 
+
+const products = await Product.find().populate("user")
+- denna user kommer från product model schema 
+
+vi vill inte att resetToken och experiationToken ska vara med 
+
+om jag inte vill att en data ska visas så kan man sätta ett minus framför .populate("user -email")
+
+
+Wish list 
+är ett array object
+lägg till i user schema. denna kommer att sparas i browser. man vi kommer att ska a den i databasen
+
+user.js schema
+lägg allt detta i en const userSchema = new Schema ({ 
+- här ska det ligga 
+
+})
+wishList: [{
+	productId: {type: mogoose.Schema.Types.objectId,
+	ref: "Product"
+	}
+}]
+
+- logic för att man inte ska kunna lägga till samma product mer än en gång i wishlist
+
+
+man kan skapa egna metoder till schema om man har gjort ovan steg 
+addToWishList = är mitt egna metodnamn
+
+userSchema.methods.addToWishList = function(product){
+	eftersom detta är en array behöver vi en push metod
+	this.whishList.push({productId: product._id})
+	
+}
+
+
+userRouter
+skapa en get router för wishlist 
+importera Product schema till denna modulen 
+router.route("/wishlist/:id")
+	.get(async (req, res) => {
+		const product = await Product.findOne({_id: req.params.id})
+		denna product är det som kommer att läggas till i userSchema.methods.addToWishList = function(product) som finns i Product schema 
+		
+		const user = await User.findOne({_id: "åsphf0osho345554"})
+		kopiera user id som kommer från productRouter.
+		user kommer bara att hämta ett objekt
+
+		user.addToWishList(product) // product = kommer från scheam 
+
+		await user.save()
+})
+
+
+product.ejs
+skapa en länk för att lägga till en produkt i wishlist
+href="/wishlist/<%=product._id%>"	

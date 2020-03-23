@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const productSchema = {
-    name: {type: String},
-    price: {type: String},
+    name: {type: String, required: true},
+    price: {type: String , required: true},
     description: {type: String},
     user: {
         type: mongoose.Schema.Types.ObjectId,

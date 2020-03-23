@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
     const token = req.cookies.jsonWebToken;
-
     
+
     // Kolla om användare har - req.cookies.jsonwebtoken. Om den har det så ska vi gå vidare till nästa steg. Denna delen kräver npm cookie-parser
     if(token){
         // "secretKey" ska heta samma som inom sign på userRouter
@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
         // För att kolla om användaren har en valid cookie
         const user = jwt.verify(token, "secretKey");
         // user innehåller användanman och lösenord
-        console.log("user info" + user);
+        // console.log(user);
         // Tilldelat den decodade informationen till req
         // Varför vill man göra detta? // Pappa
         req.body = user;
